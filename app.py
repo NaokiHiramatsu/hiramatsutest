@@ -2,6 +2,7 @@ import logging
 from flask import Flask, request, jsonify
 import os
 import openai
+import traceback  # これを追加
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
