@@ -1,5 +1,5 @@
 import logging
-from flask import Flask
+from flask import Flask, request, jsonify
 import os
 import openai
 
@@ -10,8 +10,8 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 # 環境変数からAPIキーとエンドポイントを取得
-openai.api_key = os.getenv("1d61555403f04a659807a94c197c53fd")
-openai.api_base = os.getenv("https://gpt35hiramatsu.openai.azure.com/")
+openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_base = os.getenv("OPENAI_ENDPOINT")
 
 # OpenAIにリクエストを送信する関数
 def ask_openai(prompt):
@@ -36,7 +36,12 @@ def home():
 @app.route("/ask", methods=["POST"])
 def ask():
     app.logger.info("Ask endpoint accessed")
-    data = request.get_json()  # クライアントからのデータを取得
+    try:
+        data = request.get_json()  # クライアントからのデータを取得
+    except Exception as e:
+        app.logger.error(f"Error processing JSON: {str(e)}")
+        return jsonify({"error": "Invalid JSON format"}), 400
+
     prompt = data.get("prompt", "")
     if not prompt:
         app.logger.warning("Prompt is missing in the request")
@@ -46,4 +51,5 @@ def ask():
     return jsonify({"response": result})
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080)
+    port = int(os.getenv("PORT", 8080))  # Azureでは環境変数からポートを取得
+    app.run(host='0.0.0.0', port=port)
