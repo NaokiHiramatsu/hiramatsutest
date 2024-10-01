@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify
+import logging
+from flask import Flask
 import os
 import openai
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
+
+# ログの設定
+logging.basicConfig(level=logging.DEBUG)
 
 # 環境変数からAPIキーとエンドポイントを取得
 openai.api_key = os.getenv("1d61555403f04a659807a94c197c53fd")
@@ -19,19 +23,23 @@ def ask_openai(prompt):
         )
         return response.choices[0].text.strip()
     except Exception as e:
+        app.logger.error(f"Error while connecting to OpenAI: {str(e)}")
         return str(e)
 
 # ルートエンドポイントを定義
 @app.route("/", methods=["GET"])
 def home():
+    app.logger.info("Home page accessed")
     return "Welcome to Azure OpenAI App!"
 
 # 質問を処理するエンドポイント
 @app.route("/ask", methods=["POST"])
 def ask():
+    app.logger.info("Ask endpoint accessed")
     data = request.get_json()  # クライアントからのデータを取得
     prompt = data.get("prompt", "")
     if not prompt:
+        app.logger.warning("Prompt is missing in the request")
         return jsonify({"error": "Prompt is required"}), 400
 
     result = ask_openai(prompt)
