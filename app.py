@@ -61,6 +61,12 @@ def ask():
     result = ask_openai(prompt)
     return jsonify({"response": result})
 
+# 例外をキャッチするエラーハンドラーを追加
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f"An error occurred: {str(e)}")
+    return jsonify(error=str(e)), 500
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))  # Azureでは環境変数からポートを取得
     app.run(host='0.0.0.0', port=port)
