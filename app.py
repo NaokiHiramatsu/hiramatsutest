@@ -1,8 +1,8 @@
 import logging
 from flask import Flask, request, jsonify
 import os
-import openai
-import traceback  # これを追加
+from openai import AzureOpenAI  # Azure OpenAIクライアントをインポート
+import traceback
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
@@ -10,21 +10,30 @@ app = Flask(__name__)
 # ログの設定
 logging.basicConfig(level=logging.DEBUG)
 
-# 環境変数からAPIキーとエンドポイントを取得
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_base = os.getenv("OPENAI_ENDPOINT")
+# 環境変数からAzure OpenAIの情報を取得
+endpoint = os.getenv("ENDPOINT_URL")
+deployment = os.getenv("DEPLOYMENT_NAME")
+subscription_key = os.getenv("AZURE_OPENAI_API_KEY")
 
-# OpenAIにリクエストを送信する関数
+# Azure OpenAIにリクエストを送信する関数
 def ask_openai(prompt):
     try:
-        response = openai.Completion.create(
-            engine="gpt-35-turbo",  # 使用するモデル
-            prompt=prompt,
-            max_tokens=100
+        # Azure OpenAIクライアントの初期化
+        client = AzureOpenAI(
+            azure_endpoint=endpoint,
+            api_key=subscription_key,
+            api_version="2024-05-01-preview",
         )
-        return response.choices[0].text.strip()
+
+        # チャット形式のリクエスト送信
+        response = client.chat.completions.create(
+            model=deployment,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=100,
+        )
+        return response.choices[0].message['content']
     except Exception as e:
-        app.logger.error(f"Error while connecting to OpenAI: {str(e)}")
+        app.logger.error(f"Error while connecting to Azure OpenAI: {str(e)}")
         return str(e)
 
 # ルートエンドポイントを定義
