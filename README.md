@@ -1,2 +1,2 @@
 # hiramatsutest
-#succeed
+#succeed頼む
