@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # 環境変数からAzure OpenAIの情報を取得
 endpoint = os.getenv("ENDPOINT_URL", "https://gpt35hiramatsu.openai.azure.com/")  # デフォルト値を追加
-deployment = "gpt-35-turbo"  # デプロイメント名を直接指定
+deployment = "text-embedding-ada-002"  # デプロイメント名を直接指定
 subscription_key = os.getenv("AZURE_OPENAI_API_KEY")
 
 # Azure OpenAIにリクエストを送信する関数
