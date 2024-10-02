@@ -1,7 +1,7 @@
 import logging
 from flask import Flask, request, jsonify
 import os
-from openai import AzureOpenAI  # Azure OpenAIクライアントをインポート
+# from openai import AzureOpenAI  # Azure OpenAIクライアントをインポート（無効化）
 import traceback
 
 # Flaskアプリケーションの初期化
@@ -15,27 +15,10 @@ endpoint = os.getenv("ENDPOINT_URL", "https://gpt35hiramatsu.openai.azure.com/")
 deployment = "text-embedding-ada-002"  # デプロイメント名を直接指定
 subscription_key = os.getenv("AZURE_OPENAI_API_KEY")
 
-# Azure OpenAIにリクエストを送信する関数
+# Azure OpenAIにリクエストを送信する関数（無効化）
 def ask_openai(prompt):
-    try:
-        # Azure OpenAIクライアントの初期化
-        client = AzureOpenAI(
-            azure_endpoint=endpoint,
-            api_key=subscription_key,
-            api_version="2024-05-01-preview",
-        )
-
-        # 埋め込みモデルのリクエスト送信
-        response = client.embeddings.create(
-            model=deployment,  # 埋め込み用モデルを使用
-            input=prompt
-        )
-
-        # 埋め込みの結果を返す
-        return response['data'][0]['embedding']
-    except Exception as e:
-        app.logger.error(f"Error while connecting to Azure OpenAI: {str(e)}")
-        return str(e)
+    # 無効化された関数
+    return "OpenAI呼び出しは無効化されています"
 
 # ルートエンドポイントを定義
 @app.route("/", methods=["GET"])
@@ -58,6 +41,7 @@ def ask():
         app.logger.warning("Prompt is missing in the request")
         return jsonify({"error": "Prompt is required"}), 400
 
+    # OpenAI呼び出しを一時的に無効化
     result = ask_openai(prompt)
     return jsonify({"response": result})
 
